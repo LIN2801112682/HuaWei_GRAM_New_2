@@ -10,7 +10,7 @@ import (
 )
 
 //根据一批日志数据通过字典树划分VG，构建索引项集
-func GererateIndex(filename string, qmin int, qmax int, root *trieTreeNode) *indexTreeNode {
+func GererateIndex(filename string, qmin int, qmax int, root *trieTreeNode) *indexTree {
 	start2 := time.Now()
 	indexTree := NewIndexTree(qmin, qmax)
 	data, err := os.Open(filename)
@@ -22,6 +22,7 @@ func GererateIndex(filename string, qmin int, qmax int, root *trieTreeNode) *ind
 	sid := 0
 	for {
 		data, _, eof := buff.ReadLine()
+
 		if eof == io.EOF {
 			break
 		}
@@ -39,11 +40,12 @@ func GererateIndex(filename string, qmin int, qmax int, root *trieTreeNode) *ind
 			InsertIntoIndexTree(indexTree, &gram, sid, vgKey)
 		}
 	}
+	indexTree.cout = sid
 	UpdateIndexRootFrequency(indexTree)
 	elapsed2 := time.Since(start2)
 	fmt.Println("构建索引项集花费时间（ms）：", elapsed2)
 	PrintIndexTree(indexTree)
-	return indexTree.root
+	return indexTree
 }
 
 //根据字典D划分日志为VG
