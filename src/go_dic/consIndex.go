@@ -11,7 +11,7 @@ import (
 
 //根据一批日志数据通过字典树划分VG，构建索引项集
 func GererateIndex(filename string, qmin int, qmax int, root *trieTreeNode) *indexTree {
-	start2 := time.Now()
+
 	indexTree := NewIndexTree(qmin, qmax)
 	data, err := os.Open(filename)
 	defer data.Close()
@@ -20,9 +20,9 @@ func GererateIndex(filename string, qmin int, qmax int, root *trieTreeNode) *ind
 	}
 	buff := bufio.NewReader(data)
 	sid := 0
+	var sum = 0
 	for {
 		data, _, eof := buff.ReadLine()
-
 		if eof == io.EOF {
 			break
 		}
@@ -30,6 +30,7 @@ func GererateIndex(filename string, qmin int, qmax int, root *trieTreeNode) *ind
 		vgMap = make(map[int]string)
 		sid++
 		str := string(data)
+		start2 := time.Now()
 		VGCons(root, qmin, qmax, str, vgMap)
 		for vgKey := range vgMap {
 			//字符串变字符串数组
@@ -39,24 +40,25 @@ func GererateIndex(filename string, qmin int, qmax int, root *trieTreeNode) *ind
 			}
 			InsertIntoIndexTree(indexTree, &gram, sid, vgKey)
 		}
+		end2 := time.Since(start2).Microseconds()
+		sum = int(end2) + sum
 	}
 	indexTree.cout = sid
 	UpdateIndexRootFrequency(indexTree)
-	elapsed2 := time.Since(start2)
-	fmt.Println("构建索引项集花费时间（ms）：", elapsed2)
-	PrintIndexTree(indexTree)
+	fmt.Println("构建索引项集花费时间（us）：", sum)
+	//PrintIndexTree(indexTree)
 	return indexTree
 }
 
 //根据字典D划分日志为VG
 func VGCons(root *trieTreeNode, qmin int, qmax int, str string, vgMap map[int]string) {
-	len := len(str)
-	for p := 0; p < len-qmin+1; p++ {
+	len1 := len(str)
+	for p := 0; p < len1-qmin+1; p++ {
 		tSub = ""
 		FindLongestGramFromDic(root, str, p)
 		t := tSub
-		if t == "" {
-			t = str[p : p+qmin-1]
+		if t == "" || (t != str[p:p+len(t)]) { //
+			t = str[p : p+qmin]
 		}
 		if !isSubStrOfVG(t, vgMap) {
 			vgMap[p] = t
