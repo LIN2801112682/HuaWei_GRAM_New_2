@@ -27,7 +27,7 @@ func main() {
 	fmt.Println("索引项集内存占用大小：")
 	traceMemStats()
 	fmt.Println()
-	go_dic.GererateIndex("src/resources/5000Index.txt", 2, 6, root) //indexTree :=
+	_, indexTreeNode := go_dic.GererateIndex("src/resources/100Index.txt", 2, 6, root) //
 	fmt.Println()
 	traceMemStats()
 	fmt.Println()
@@ -41,4 +41,7 @@ func main() {
 	fmt.Println()
 	//traceMemStats()
 	fmt.Println()*/
+
+	resInt := go_dic.MatchSearch("html", root, indexTreeNode, 2, 6) //get english venues
+	fmt.Println(resInt)
 }
