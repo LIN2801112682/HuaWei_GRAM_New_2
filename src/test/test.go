@@ -37,9 +37,9 @@ func main() {
 
 	fmt.Println()
 	fmt.Println(*frequencies)
-	fmt.Println(len(*frequencies))
-
+	fmt.Println(util.GetDicSum(frequencies))
 	fmt.Println(*frequencies2)
+	fmt.Println(util.GetDicSum(frequencies2))
 
 	// 写文件测试
 	fileName1 := "src/resources/dics/output/" + "500Dic-qMax" + strconv.Itoa(qMax) + ".txt"

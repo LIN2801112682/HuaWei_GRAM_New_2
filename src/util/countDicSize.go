@@ -95,6 +95,14 @@ func CountDicSize(dicSize *map[int][]int) int {
 
 }
 
+func GetDicSum(dicSize *map[int][]int) int {
+	sum := 0
+	for _, v := range *dicSize {
+		sum += len(v)
+	}
+	return sum
+}
+
 // 数组切片求和
 func ArraySum(input interface{}) (sum float64, err error) {
 	list := reflect.ValueOf(input)
