@@ -9,7 +9,7 @@ import (
 )
 
 //根据一批日志数据通过字典树划分VG，增加到索引项集中
-func AddIndex(filename string, qmin int, qmax int, root *trieTreeNode, indexTree *indexTree) *indexTree {
+func AddIndex(filename string, qmin int, qmax int, root *TrieTreeNode, indexTree *indexTree) *indexTree {
 	//start2 := time.Now()
 	data, err := os.Open(filename)
 	defer data.Close()

@@ -10,7 +10,7 @@ import (
 )
 
 //根据一批日志数据通过字典树划分VG，构建索引项集
-func GererateIndex(filename string, qmin int, qmax int, root *trieTreeNode) *indexTree {
+func GererateIndex(filename string, qmin int, qmax int, root *TrieTreeNode) *indexTree {
 
 	indexTree := NewIndexTree(qmin, qmax)
 	data, err := os.Open(filename)
@@ -51,7 +51,7 @@ func GererateIndex(filename string, qmin int, qmax int, root *trieTreeNode) *ind
 }
 
 //根据字典D划分日志为VG
-func VGCons(root *trieTreeNode, qmin int, qmax int, str string, vgMap map[int]string) {
+func VGCons(root *TrieTreeNode, qmin int, qmax int, str string, vgMap map[int]string) {
 	len1 := len(str)
 	for p := 0; p < len1-qmin+1; p++ {
 		tSub = ""
@@ -80,7 +80,7 @@ func isSubStrOfVG(t string, vgMap map[int]string) bool {
 
 var tSub string
 
-func FindLongestGramFromDic(root *trieTreeNode, str string, p int) {
+func FindLongestGramFromDic(root *TrieTreeNode, str string, p int) {
 	if p < len(str) {
 		c := str[p : p+1]
 		for i := 0; i < len(root.children); i++ {
