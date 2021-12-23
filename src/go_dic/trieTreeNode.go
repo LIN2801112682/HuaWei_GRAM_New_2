@@ -5,24 +5,40 @@ import (
 	"sort"
 )
 
-type trieTreeNode struct {
+type TrieTreeNode struct {
 	data      string
 	frequency int
-	children  []*trieTreeNode
+	children  []*TrieTreeNode
 	isleaf    bool
 }
 
-func NewTrieTreeNode(data string) *trieTreeNode {
-	return &trieTreeNode{
+func GetData(node *TrieTreeNode) string {
+	return node.data
+}
+
+func GetFrequency(node *TrieTreeNode) int {
+	return node.frequency
+}
+
+func IsLeaf(node *TrieTreeNode) bool {
+	return node.isleaf
+}
+
+func GetChildren(node *TrieTreeNode) []*TrieTreeNode {
+	return node.children
+}
+
+func NewTrieTreeNode(data string) *TrieTreeNode {
+	return &TrieTreeNode{
 		data:      data,
 		frequency: 1,
 		isleaf:    false,
-		children:  make([]*trieTreeNode, 0),
+		children:  make([]*TrieTreeNode, 0),
 	}
 }
 
 //剪枝
-func PruneNode(node *trieTreeNode, T int) {
+func PruneNode(node *TrieTreeNode, T int) {
 	if !node.isleaf {
 		for _, child := range node.children {
 			PruneNode(child, T)
@@ -37,15 +53,62 @@ func PruneNode(node *trieTreeNode, T int) {
 }
 
 //剪枝策略<=T
-func PruneStrategyLessT(node *trieTreeNode) {
-	node.children = make([]*trieTreeNode, 0)
+func PruneStrategyLessT(node *TrieTreeNode) {
+	node.children = make([]*TrieTreeNode, 0)
 }
 
 //剪枝策略>T
 //剪掉最大子集，若无法剪枝则递归剪子树
-func PruneStrategyMoreT(node *trieTreeNode, T int) {
+func PruneStrategyMoreT(node *TrieTreeNode, T int) {
 	arraylength := len(node.children)
 	frequencylist := make([]int, arraylength)
+
+	/*
+		// TODO 检验新的剪枝策略
+		// 将每个节点的频率和节点本身保存到一个 map 中
+		frequencyList := make(map[int][]map[int]*TrieTreeNode)
+		for idx, child := range node.children {
+			freq := child.frequency
+			value, ok := frequencyList[freq]
+			if !ok {
+				value = make([]map[int]*TrieTreeNode, 0)
+			}
+			node := make(map[int]*TrieTreeNode)
+			node[idx] = child
+			value = append(value, node)
+			frequencyList[freq] = value
+		}
+		fmt.Println(frequencyList)
+		// 统计map 的所有key ,即频率
+		var keys []int
+		for k, _ := range frequencyList {
+			keys = append(keys, k)
+		}
+		sort.Ints(keys)
+		fmt.Println(keys)
+		var totalSum = 0
+		for i := len(keys) - 1; i >= 0; i-- {
+			if totalSum+keys[i] <= T {
+				value, ok := frequencyList[keys[i]]
+				if ok {
+					for _, v := range value {
+						if totalSum+keys[i] <= T {
+							totalSum += keys[i]
+							for idx, node := range v {
+								fmt.Printf("k=%v v=%v\n", idx, node)
+								NodeArrayRemoveStrategy(&node.children, idx)
+							}
+						} else {
+							break
+						}
+					}
+				}
+			}
+		}
+
+	*/
+
+	//* 之前的剪枝策略
 	for i := 0; i < arraylength; i++ {
 		frequencylist[i] = node.children[i].frequency
 	}
@@ -56,6 +119,7 @@ func PruneStrategyMoreT(node *trieTreeNode, T int) {
 		if totoalsum+frequencylist[i] <= T {
 			totoalsum = totoalsum + frequencylist[i]
 			for j, child := range node.children {
+				// TODO 剪枝策略有问题
 				if child.frequency == frequencylist[i] {
 					//找到对应枝条，进行剪枝
 					//删除该孩子节点
@@ -65,6 +129,7 @@ func PruneStrategyMoreT(node *trieTreeNode, T int) {
 			}
 		}
 	}
+	//*/
 	//if(totoalsum == 0){ //
 	// 不存在最大子集
 	for _, child := range node.children {
@@ -74,17 +139,18 @@ func PruneStrategyMoreT(node *trieTreeNode, T int) {
 }
 
 //删除数组策略
-func NodeArrayRemoveStrategy(array *[]*trieTreeNode, index int) {
+func NodeArrayRemoveStrategy(array *[]*TrieTreeNode, index int) {
+	//fmt.Println(len(*array))
 	*array = append((*array)[:index], (*array)[index+1:]...)
 }
 
 //插入数组策略
-func NodeArrayInsertStrategy(array *[]*trieTreeNode, node *trieTreeNode) {
+func NodeArrayInsertStrategy(array *[]*TrieTreeNode, node *TrieTreeNode) {
 	*array = append(*array, node)
 }
 
 //判断children有无此节点
-func getNode(children []*trieTreeNode, char string) int {
+func getNode(children []*TrieTreeNode, char string) int {
 	for i, child := range children {
 		if child.data == char {
 			return i
@@ -94,7 +160,7 @@ func getNode(children []*trieTreeNode, char string) int {
 }
 
 //输出以node为根的子树
-func PrintTreeNode(node *trieTreeNode, level int) {
+func PrintTreeNode(node *TrieTreeNode, level int) {
 	fmt.Println()
 	for i := 0; i < level; i++ {
 		fmt.Print("      ")

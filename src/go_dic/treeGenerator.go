@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func GererateTree(filename string, qmin int, qmax int, T int) *trieTreeNode {
+func GererateTree(filename string, qmin int, qmax int, T int) *TrieTreeNode {
 
 	tree := NewTrieTree(qmin, qmax)
 	data, err := os.Open(filename)

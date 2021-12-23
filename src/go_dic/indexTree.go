@@ -18,7 +18,7 @@ func NewIndexTree(qmin int, qmax int) *indexTree {
 }
 
 //将gram插入trieTree上
-//trieTree:待插入的树
+//TrieTree:待插入的树
 //gram:待插入字符串数组
 //sid:字符串所属sid
 //position:字符串在sid中的位置
