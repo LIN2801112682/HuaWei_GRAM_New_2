@@ -1,4 +1,4 @@
-package go_dic
+package build_dictionary
 
 import (
 	"bufio"
@@ -9,7 +9,6 @@ import (
 )
 
 func GererateTree(filename string, qmin int, qmax int, T int) *TrieTreeNode {
-
 	tree := NewTrieTree(qmin, qmax)
 	data, err := os.Open(filename)
 	defer data.Close()

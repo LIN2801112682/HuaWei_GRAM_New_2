@@ -1,7 +1,8 @@
-package go_dic
+package build_VGram_index
 
 import (
 	"bufio"
+	"build_dictionary"
 	"fmt"
 	"io"
 	"os"
@@ -10,8 +11,7 @@ import (
 )
 
 //根据一批日志数据通过字典树划分VG，构建索引项集
-func GererateIndex(filename string, qmin int, qmax int, root *trieTreeNode) (*indexTree, *indexTreeNode) {
-
+func GererateIndex(filename string, qmin int, qmax int, root *build_dictionary.TrieTreeNode) (*IndexTree, *IndexTreeNode) {
 	indexTree := NewIndexTree(qmin, qmax)
 	data, err := os.Open(filename)
 	defer data.Close()
@@ -43,21 +43,21 @@ func GererateIndex(filename string, qmin int, qmax int, root *trieTreeNode) (*in
 		end2 := time.Since(start2).Microseconds()
 		sum = int(end2) + sum
 	}
-	indexTree.cout = sid
+	indexTree.Cout = sid
 	UpdateIndexRootFrequency(indexTree)
 	fmt.Println("构建索引项集花费时间（us）：", sum)
-	PrintIndexTree(indexTree)
-	return indexTree, indexTree.root
+	//PrintIndexTree(indexTree)
+	return indexTree, indexTree.Root
 }
 
 //根据字典D划分日志为VG
-func VGCons(root *trieTreeNode, qmin int, qmax int, str string, vgMap map[int]string) {
+func VGCons(root *build_dictionary.TrieTreeNode, qmin int, qmax int, str string, vgMap map[int]string) {
 	len1 := len(str)
 	for p := 0; p < len1-qmin+1; p++ {
 		tSub = ""
 		FindLongestGramFromDic(root, str, p)
 		t := tSub
-		if t == "" || (t != str[p:p+len(t)]) { //
+		if t == "" || (t != str[p:p+len(t)]) { //len(t) == qmax && t != str[p:p+len(t)]  || len(t) < qmax && t != str[p:p+len(t)]
 			t = str[p : p+qmin]
 		}
 		if !isSubStrOfVG(t, vgMap) {
@@ -80,13 +80,13 @@ func isSubStrOfVG(t string, vgMap map[int]string) bool {
 
 var tSub string
 
-func FindLongestGramFromDic(root *trieTreeNode, str string, p int) {
+func FindLongestGramFromDic(root *build_dictionary.TrieTreeNode, str string, p int) { //优化：字典序可以二分查找   最多找到qmx长就停止
 	if p < len(str) {
 		c := str[p : p+1]
-		for i := 0; i < len(root.children); i++ {
-			if root.children[i].data == c {
+		for i := 0; i < len(root.Children); i++ {
+			if root.Children[i].Data == c {
 				tSub += c
-				FindLongestGramFromDic(root.children[i], str, p+1)
+				FindLongestGramFromDic(root.Children[i], str, p+1)
 			}
 		}
 	}

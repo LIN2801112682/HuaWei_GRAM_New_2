@@ -1,8 +1,10 @@
 package main
 
 import (
-	"../go_dic"
+	"build_VGram_index"
+	"build_dictionary"
 	"fmt"
+	"precise_query"
 	"runtime"
 )
 
@@ -17,7 +19,7 @@ func main() {
 	fmt.Println("字典树D内存占用大小：")
 	//TraceMemStats()
 	fmt.Println()
-	root := go_dic.GererateTree("src/resources/500Dic.txt", 2, 6, 50) //
+	root := build_dictionary.GererateTree("src/resources/5000Dic.txt", 2, 10, 50) //
 	fmt.Println()
 	//TraceMemStats()
 	fmt.Println()
@@ -27,7 +29,7 @@ func main() {
 	fmt.Println("索引项集内存占用大小：")
 	TraceMemStats()
 	fmt.Println()
-	_, indexTreeNode := go_dic.GererateIndex("src/resources/100Index.txt", 2, 6, root) //
+	_, indexTreeNode := build_VGram_index.GererateIndex("src/resources/1Index.txt", 2, 10, root) //
 	fmt.Println()
 	TraceMemStats()
 	fmt.Println()
@@ -37,11 +39,12 @@ func main() {
 	fmt.Println("索引项集内存占用大小：")
 	//TraceMemStats()
 	fmt.Println()
-	go_dic.AddIndex("src/resources/add2000.txt", 2, 6, root, indexTree)
+	index_maintenance.AddIndex("src/resources/add2000.txt", 2, 6, root, indexTree)
 	fmt.Println()
 	//TraceMemStats()
 	fmt.Println()*/
 
-	resInt := go_dic.MatchSearch("html", root, indexTreeNode, 2, 6) //get english venues
+	resInt := precise_query.MatchSearch(" HTTP/1.1", root, indexTreeNode, 2, 10) //get english venues
 	fmt.Println(resInt)
+	fmt.Println(len(resInt))
 }

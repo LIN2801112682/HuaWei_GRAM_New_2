@@ -3,8 +3,8 @@ vGram1.0
 
 构建字典D：
 treeGenerator.go
-TrieTree.go
-TrieTreeNode.go
+trieTree.go
+trieTreeNode.go
 
 构建索引项CLV1.0：
 consIndex.go

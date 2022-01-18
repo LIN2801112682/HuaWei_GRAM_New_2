@@ -1,4 +1,4 @@
-package go_dic
+package build_dictionary
 
 type TrieTree struct {
 	qmin int
@@ -6,11 +6,6 @@ type TrieTree struct {
 	root *TrieTreeNode
 }
 
-func GetRoot(tree *TrieTree) *TrieTreeNode {
-	return tree.root
-}
-
-//初始化trieTree
 func NewTrieTree(qmin int, qmax int) *TrieTree {
 	return &TrieTree{
 		qmin: qmin,
@@ -29,16 +24,16 @@ func InsertIntoTrieTree(tree *TrieTree, gram *[]string) {
 	// 孩子节点在childrenlist中的位置
 	var childindex = 0
 	for i, char := range *gram {
-		childindex = getNode(node.children, (*gram)[i])
+		childindex = getNode(node.Children, (*gram)[i])
 		if childindex == -1 {
 			// childrenlist里没有该节点
 			currentnode := NewTrieTreeNode(char)
-			NodeArrayInsertStrategy(&node.children, currentnode)
+			NodeArrayInsertStrategy(&node.Children, currentnode)
 			node = currentnode
 		} else {
 			//childrenlist里有该节点
 			//childrenindex为该节点在数组中的位置
-			node = node.children[childindex]
+			node = node.Children[childindex]
 			node.frequency++
 		}
 		if i >= qmin-1 {
@@ -60,7 +55,7 @@ func PrintTree(tree *TrieTree) {
 
 //更新root节点的频率
 func UpdateRootFrequency(tree *TrieTree) {
-	for _, child := range tree.root.children {
+	for _, child := range tree.root.Children {
 		tree.root.frequency += child.frequency
 	}
 	tree.root.frequency--
