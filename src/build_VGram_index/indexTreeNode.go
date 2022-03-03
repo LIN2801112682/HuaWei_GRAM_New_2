@@ -22,10 +22,17 @@ func NewIndexTreeNode(data string) *IndexTreeNode {
 	}
 }
 
+func InsertInvertedIndexPos(invertedIndex *Inverted_index, position int) {
+	//倒排列表数组中找到sid的invertedIndex，把position加入到invertedIndex中的posArray中去
+	invertedIndex.PosArray = append(invertedIndex.PosArray, position)
+}
+
 //插入倒排
-func InsertInvertedIndex(node *IndexTreeNode, sid int, position int) {
+func InsertInvertedIndexList(node *IndexTreeNode, sid SeriesId, position int) {
 	// 倒排列表数组中创建新inverted_index，并加入到invertedIndexList中
-	newInverted := NewInverted_index(sid, position)
+	posArray := []int{}
+	posArray = append(posArray, position)
+	newInverted := NewInverted_index(sid, posArray)
 	invertedIndexArrayInsertStrategy(&node.InvertedIndexList, newInverted)
 }
 
@@ -57,7 +64,7 @@ func PrintIndexTreeNode(node *IndexTreeNode, level int) {
 	}
 	fmt.Print(node.Data, " - ", node.Frequency, " - ", node.isleaf)
 	for _, invertedIndex := range node.InvertedIndexList {
-		fmt.Print("  /  sid : ", invertedIndex.Sid, " position : ", invertedIndex.Position)
+		fmt.Print("  /  sid : ", invertedIndex.Sid, " positionList : ", invertedIndex.PosArray)
 	}
 	for _, child := range node.Children {
 		PrintIndexTreeNode(child, level+1)

@@ -21,7 +21,7 @@ func NewIndexTree(qmin int, qmax int) *IndexTree {
 //gram:待插入字符串数组
 //sid:字符串所属sid
 //position:字符串在sid中的位置
-func InsertIntoIndexTree(tree *IndexTree, gram *[]string, sid int, position int) {
+func InsertIntoIndexTree(tree *IndexTree, gram *[]string, sid SeriesId, position int) {
 	//初始化node、qmin
 	node := tree.Root
 	qmin := tree.qmin
@@ -44,9 +44,20 @@ func InsertIntoIndexTree(tree *IndexTree, gram *[]string, sid int, position int)
 		if i >= qmin-1 {
 			node.isleaf = true
 		}
-		if i == len(*gram)-1 {
+		if node.isleaf { //改成是否是叶子节点判断i == len(*gram)-1
 			//叶子节点，需要挂倒排链表
-			InsertInvertedIndex(node, sid, position)
+			//寻找相同sid下增加posArray即可
+			//没有sid 创建sid对应的倒排
+			var j int
+			for j = 0; j < len(node.InvertedIndexList); j++ {
+				if node.InvertedIndexList[j].Sid.Id == sid.Id && node.InvertedIndexList[j].Sid.Time == sid.Time {
+					InsertInvertedIndexPos(node.InvertedIndexList[j], position)
+					break
+				}
+			}
+			if j == len(node.InvertedIndexList) {
+				InsertInvertedIndexList(node, sid, position)
+			}
 		}
 	}
 }

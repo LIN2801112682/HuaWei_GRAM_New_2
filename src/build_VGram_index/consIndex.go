@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"sort"
 	"strings"
 	"time"
 )
@@ -19,8 +20,10 @@ func GererateIndex(filename string, qmin int, qmax int, root *build_dictionary.T
 		fmt.Print(err)
 	}
 	buff := bufio.NewReader(data)
-	sid := 0
+	var id int32
+	id = 0
 	var sum = 0
+	timeStamp := time.Now().Unix()
 	for {
 		data, _, eof := buff.ReadLine()
 		if eof == io.EOF {
@@ -28,22 +31,31 @@ func GererateIndex(filename string, qmin int, qmax int, root *build_dictionary.T
 		}
 		var vgMap map[int]string
 		vgMap = make(map[int]string)
-		sid++
+		id++
+		timeStamp++
+		sid := NewSeriesId(id, timeStamp)
 		str := string(data)
 		start2 := time.Now()
 		VGCons(root, qmin, qmax, str, vgMap)
-		for vgKey := range vgMap {
+		var keys = []int{}
+		for key := range vgMap {
+			keys = append(keys, key)
+		}
+		//对map中的key进行排序（map遍历是无序的）
+		sort.Sort(sort.IntSlice(keys))
+		for i := 0; i < len(keys); i++ {
+			vgKey := keys[i]
 			//字符串变字符串数组
 			gram := make([]string, len(vgMap[vgKey]))
 			for j := 0; j < len(vgMap[vgKey]); j++ {
 				gram[j] = vgMap[vgKey][j : j+1]
 			}
-			InsertIntoIndexTree(indexTree, &gram, sid, vgKey)
+			InsertIntoIndexTree(indexTree, &gram, *sid, vgKey)
 		}
 		end2 := time.Since(start2).Microseconds()
 		sum = int(end2) + sum
 	}
-	indexTree.Cout = sid
+	indexTree.Cout = (int(id))
 	UpdateIndexRootFrequency(indexTree)
 	fmt.Println("构建索引项集花费时间（us）：", sum)
 	//PrintIndexTree(indexTree)
@@ -57,7 +69,7 @@ func VGCons(root *build_dictionary.TrieTreeNode, qmin int, qmax int, str string,
 		tSub = ""
 		FindLongestGramFromDic(root, str, p)
 		t := tSub
-		if t == "" || (t != str[p:p+len(t)]) { //len(t) == qmax && t != str[p:p+len(t)]  || len(t) < qmax && t != str[p:p+len(t)]
+		if t == "" || len(t) < qmin { //t != str[p:p+len(t)]  目前qmin - qmax之间都是叶子节点也就是说FindLongestGramFromDic找到的只要是长度大于qmin就都是VG的gram
 			t = str[p : p+qmin]
 		}
 		if !isSubStrOfVG(t, vgMap) {
@@ -70,7 +82,9 @@ func isSubStrOfVG(t string, vgMap map[int]string) bool {
 	var flag = false
 	for vgKey := range vgMap {
 		str := vgMap[vgKey]
-		if strings.Contains(str, t) {
+		if str == t {
+			return false
+		} else if strings.Contains(str, t) {
 			flag = true
 			break
 		}
@@ -87,6 +101,9 @@ func FindLongestGramFromDic(root *build_dictionary.TrieTreeNode, str string, p i
 			if root.Children[i].Data == c {
 				tSub += c
 				FindLongestGramFromDic(root.Children[i], str, p+1)
+			}
+			if i == len(root.Children) {
+				return
 			}
 		}
 	}

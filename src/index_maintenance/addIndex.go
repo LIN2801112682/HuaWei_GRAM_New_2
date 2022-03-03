@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"sort"
 	"time"
 )
 
@@ -18,7 +19,7 @@ func AddIndex(filename string, qmin int, qmax int, root *build_dictionary.TrieTr
 		fmt.Print(err)
 	}
 	buff := bufio.NewReader(data)
-	sid := indexTree.Cout
+	id := indexTree.Cout
 	var sum = 0
 	for {
 		data, _, eof := buff.ReadLine()
@@ -27,22 +28,31 @@ func AddIndex(filename string, qmin int, qmax int, root *build_dictionary.TrieTr
 		}
 		var vgMap map[int]string
 		vgMap = make(map[int]string)
-		sid++
+		id++
+		timeStamp := time.Now().Unix()
+		sid := build_VGram_index.NewSeriesId(int32(id), timeStamp)
 		str := string(data)
 		start2 := time.Now()
 		build_VGram_index.VGCons(root, qmin, qmax, str, vgMap)
-		for vgKey := range vgMap {
+		var keys = []int{}
+		for key := range vgMap {
+			keys = append(keys, key)
+		}
+		//对map中的key进行排序（map遍历是无序的）
+		sort.Sort(sort.IntSlice(keys))
+		for i := 0; i < len(keys); i++ {
+			vgKey := keys[i]
 			//字符串变字符串数组
 			gram := make([]string, len(vgMap[vgKey]))
 			for j := 0; j < len(vgMap[vgKey]); j++ {
 				gram[j] = vgMap[vgKey][j : j+1]
 			}
-			build_VGram_index.InsertIntoIndexTree(indexTree, &gram, sid, vgKey)
+			build_VGram_index.InsertIntoIndexTree(indexTree, &gram, *sid, vgKey)
 		}
 		end2 := time.Since(start2).Microseconds()
 		sum = int(end2) + sum
 	}
-	indexTree.Cout = sid
+	indexTree.Cout = id
 	indexTree.Root.Frequency = 1
 	build_VGram_index.UpdateIndexRootFrequency(indexTree)
 	fmt.Println("新增索引项集花费时间（us）：", sum)

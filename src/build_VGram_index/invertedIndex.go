@@ -1,13 +1,13 @@
 package build_VGram_index
 
 type Inverted_index struct {
-	Sid      int
-	Position int
+	Sid      SeriesId
+	PosArray []int
 }
 
-func NewInverted_index(sid int, p int) *Inverted_index {
+func NewInverted_index(sid SeriesId, posArray []int) *Inverted_index {
 	return &Inverted_index{
 		Sid:      sid,
-		Position: p,
+		PosArray: posArray,
 	}
 }
