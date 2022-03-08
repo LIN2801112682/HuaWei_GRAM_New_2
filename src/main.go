@@ -17,11 +17,11 @@ func TraceMemStats() {
 func main() {
 	fmt.Println("字典树D：===============================================================")
 	fmt.Println("字典树D内存占用大小：")
-	//TraceMemStats()
+	TraceMemStats()
 	fmt.Println()
 	root := build_dictionary.GererateTree("src/resources/5000Dic.txt", 2, 12, 40) //
 	fmt.Println()
-	//TraceMemStats()
+	TraceMemStats()
 	fmt.Println()
 
 	fmt.Println("索引项集：===============================================================")
@@ -29,7 +29,7 @@ func main() {
 	fmt.Println("索引项集内存占用大小：")
 	TraceMemStats()
 	fmt.Println()
-	_, indexTreeNode := build_VGram_index.GererateIndex("src/resources/500Index.txt", 2, 12, root) //
+	_, indexTreeNode := build_VGram_index.GererateIndex("src/resources/index5000.txt", 2, 12, root) //
 	fmt.Println()
 	TraceMemStats()
 	fmt.Println()
@@ -45,7 +45,7 @@ func main() {
 	fmt.Println()*/
 
 	//resInt := precise_query.MatchSearch(" HTTP/1.1", root, indexTreeNode, 2, 10) //get english venues
-	resInt := new_precise_query.MatchSearch("GET /english", root, indexTreeNode, 2, 12)
+	resInt := new_precise_query.MatchSearch("/images/space.gif", root, indexTreeNode, 2, 12)
 
 	fmt.Println(resInt)
 	fmt.Println(len(resInt))

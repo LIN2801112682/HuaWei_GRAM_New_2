@@ -46,20 +46,25 @@ func InsertIntoIndexTree(tree *IndexTree, gram *[]string, sid SeriesId, position
 		}
 		if node.isleaf { //改成是否是叶子节点判断i == len(*gram)-1
 			//叶子节点，需要挂倒排链表
-			//寻找相同sid下增加posArray即可
-			//没有sid 创建sid对应的倒排
-			var j int
-			for j = 0; j < len(node.InvertedIndexList); j++ {
-				if node.InvertedIndexList[j].Sid.Id == sid.Id && node.InvertedIndexList[j].Sid.Time == sid.Time {
-					InsertInvertedIndexPos(node.InvertedIndexList[j], position)
-					break
-				}
-			}
-			if j == len(node.InvertedIndexList) {
-				InsertInvertedIndexList(node, sid, position)
+			if _, ok := node.InvertedIndex[sid]; !ok { //key中没有sid 创建sid对应的倒排
+				InsertSidAndPosArrToInvertedIndexMap(node, sid, position)
+			} else { //寻找相同sid下增加posArray即可
+				InsertPosArrToInvertedIndexMap(node, sid, position)
 			}
 		}
 	}
+}
+
+func InsertPosArrToInvertedIndexMap(node *IndexTreeNode, sid SeriesId, position int) {
+	//倒排列表数组中找到sid的invertedIndex，把position加入到invertedIndex中的posArray中去
+	node.InvertedIndex[sid] = append(node.InvertedIndex[sid], position)
+}
+
+//插入倒排
+func InsertSidAndPosArrToInvertedIndexMap(node *IndexTreeNode, sid SeriesId, position int) {
+	posArray := []int{}
+	posArray = append(posArray, position)
+	node.InvertedIndex[sid] = posArray
 }
 
 func PrintIndexTree(tree *IndexTree) {

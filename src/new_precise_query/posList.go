@@ -1,13 +1,15 @@
 package new_precise_query
 
+import "build_VGram_index"
+
 type PosList struct {
-	Kid      int
+	Sid      build_VGram_index.SeriesId
 	PosArray []int
 }
 
-func NewPosList(kid int, posArray []int) PosList {
+func NewPosList(sid build_VGram_index.SeriesId, posArray []int) PosList {
 	return PosList{
-		Kid:      kid,
+		Sid:      sid,
 		PosArray: posArray,
 	}
 }

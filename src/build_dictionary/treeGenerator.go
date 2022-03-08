@@ -51,6 +51,6 @@ func GererateTree(filename string, qmin int, qmax int, T int) *TrieTreeNode {
 	UpdateRootFrequency(tree)
 
 	fmt.Println("构建字典树花费时间（us）：", sum)
-	//PrintTree(tree)
+	PrintTree(tree)
 	return tree.root
 }
