@@ -9,7 +9,7 @@ type IndexTreeNode struct {
 	Frequency     int
 	Children      []*IndexTreeNode
 	isleaf        bool
-	InvertedIndex map[SeriesId][]int
+	InvertedIndex Inverted_index
 }
 
 func NewIndexTreeNode(data string) *IndexTreeNode {

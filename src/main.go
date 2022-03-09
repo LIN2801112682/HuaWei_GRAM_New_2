@@ -45,7 +45,7 @@ func main() {
 	fmt.Println()*/
 
 	//resInt := precise_query.MatchSearch(" HTTP/1.1", root, indexTreeNode, 2, 10) //get english venues
-	resInt := new_precise_query.MatchSearch("/images/space.gif", root, indexTreeNode, 2, 12)
+	resInt := new_precise_query.MatchSearch("GET / HTTP/1.0", root, indexTreeNode, 2, 12)
 
 	fmt.Println(resInt)
 	fmt.Println(len(resInt))

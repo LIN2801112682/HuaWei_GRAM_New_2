@@ -44,7 +44,7 @@ func InsertIntoIndexTree(tree *IndexTree, gram *[]string, sid SeriesId, position
 		if i >= qmin-1 {
 			node.isleaf = true
 		}
-		if node.isleaf { //改成是否是叶子节点判断i == len(*gram)-1
+		if i == len(*gram)-1 { //改成是否是叶子节点判断node.isleaf是不行的！！！这样就会改变索引结构
 			//叶子节点，需要挂倒排链表
 			if _, ok := node.InvertedIndex[sid]; !ok { //key中没有sid 创建sid对应的倒排
 				InsertSidAndPosArrToInvertedIndexMap(node, sid, position)
