@@ -34,9 +34,10 @@ func MatchSearch(searchStr string, root *build_dictionary.TrieTreeNode, indexRoo
 			invertIndex2 = nil
 			searchIndexTreeFromLeaves(gramArr, indexRoot, 0)
 			searchListsTreeFromLeaves(indexNode)
-			//fmt.Println(len(invertIndex))
+
 			//fmt.Println(invertIndex)
 			mergo.Merge(&invertIndex, invertIndex2)
+			fmt.Println(len(invertIndex))
 			//mergeMaps(invertIndex, invertIndex2)
 			/*sort.SliceStable(invertIndex, func(i, j int) bool { //排序
 				if invertIndex[i].Sid.Id < invertIndex[j].Sid.Id && invertIndex[i].Sid.Time < invertIndex[j].Sid.Time {

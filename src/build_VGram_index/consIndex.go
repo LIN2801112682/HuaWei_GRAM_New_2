@@ -58,7 +58,7 @@ func GererateIndex(filename string, qmin int, qmax int, root *build_dictionary.T
 	indexTree.Cout = (int(id))
 	UpdateIndexRootFrequency(indexTree)
 	fmt.Println("构建索引项集花费时间（us）：", sum)
-	PrintIndexTree(indexTree)
+	//PrintIndexTree(indexTree)
 	return indexTree, indexTree.Root
 }
 

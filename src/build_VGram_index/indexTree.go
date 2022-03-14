@@ -24,7 +24,7 @@ func NewIndexTree(qmin int, qmax int) *IndexTree {
 func InsertIntoIndexTree(tree *IndexTree, gram *[]string, sid SeriesId, position int) {
 	//初始化node、qmin
 	node := tree.Root
-	qmin := tree.qmin
+	//qmin := tree.qmin
 	// 孩子节点在childrenlist中的位置
 	var childindex = 0
 	for i, char := range *gram {
@@ -41,11 +41,12 @@ func InsertIntoIndexTree(tree *IndexTree, gram *[]string, sid SeriesId, position
 			node.Frequency++
 		}
 		//从root的孩子节点开始判断，少一层故大于等于 qmin-1 不是qmin
-		if i >= qmin-1 {
-			node.isleaf = true
-		}
+		//if i >= qmin-1 {
+		//	node.isleaf = true
+		//}
 		if i == len(*gram)-1 { //改成是否是叶子节点判断node.isleaf是不行的！！！这样就会改变索引结构
 			//叶子节点，需要挂倒排链表
+			node.isleaf = true
 			if _, ok := node.InvertedIndex[sid]; !ok { //key中没有sid 创建sid对应的倒排
 				InsertSidAndPosArrToInvertedIndexMap(node, sid, position)
 			} else { //寻找相同sid下增加posArray即可
