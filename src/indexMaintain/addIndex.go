@@ -1,10 +1,10 @@
-package index_maintenance
+package indexMaintain
 
 import (
 	"bufio"
-	"build_VGram_index"
-	"build_dictionary"
+	"dictionary"
 	"fmt"
+	"index07"
 	"io"
 	"os"
 	"sort"
@@ -12,14 +12,14 @@ import (
 )
 
 //根据一批日志数据通过字典树划分VG，增加到索引项集中
-func AddIndex(filename string, qmin int, qmax int, root *build_dictionary.TrieTreeNode, indexTree *build_VGram_index.IndexTree) *build_VGram_index.IndexTree {
+func AddIndex(filename string, qmin int, qmax int, root *dictionary.TrieTreeNode, indexTree *index07.IndexTree) *index07.IndexTree {
 	data, err := os.Open(filename)
 	defer data.Close()
 	if err != nil {
 		fmt.Print(err)
 	}
 	buff := bufio.NewReader(data)
-	id := indexTree.Cout
+	id := indexTree.Cout()
 	var sum = 0
 	for {
 		data, _, eof := buff.ReadLine()
@@ -30,10 +30,10 @@ func AddIndex(filename string, qmin int, qmax int, root *build_dictionary.TrieTr
 		vgMap = make(map[int]string)
 		id++
 		timeStamp := time.Now().Unix()
-		sid := build_VGram_index.NewSeriesId(int32(id), timeStamp)
+		sid := index07.NewSeriesId(int32(id), timeStamp)
 		str := string(data)
 		start2 := time.Now()
-		build_VGram_index.VGCons(root, qmin, qmax, str, vgMap)
+		index07.VGCons(root, qmin, qmax, str, vgMap)
 		var keys = []int{}
 		for key := range vgMap {
 			keys = append(keys, key)
@@ -47,15 +47,15 @@ func AddIndex(filename string, qmin int, qmax int, root *build_dictionary.TrieTr
 			for j := 0; j < len(vgMap[vgKey]); j++ {
 				gram[j] = vgMap[vgKey][j : j+1]
 			}
-			build_VGram_index.InsertIntoIndexTree(indexTree, &gram, *sid, vgKey)
+			indexTree.InsertIntoIndexTree(&gram, *sid, vgKey)
 		}
 		end2 := time.Since(start2).Microseconds()
 		sum = int(end2) + sum
 	}
-	indexTree.Cout = id
-	indexTree.Root.Frequency = 1
-	build_VGram_index.UpdateIndexRootFrequency(indexTree)
+	indexTree.SetCout(id)
+	indexTree.Root().SetFrequency(1)
+	indexTree.UpdateIndexRootFrequency()
 	fmt.Println("新增索引项集花费时间（us）：", sum)
-	//PrintIndexTree(indexTree)
+	//indexTree.PrintIndexTree()
 	return indexTree
 }

@@ -1,30 +1,35 @@
-package new_precise_query
+package matchQuery1
 
 import (
-	"build_VGram_index"
-	"build_dictionary"
+	"dictionary"
 	"fmt"
 	"github.com/imdario/mergo"
+	"index07"
 	"reflect"
 	"sort"
 	"time"
 )
 
-func MatchSearch(searchStr string, root *build_dictionary.TrieTreeNode, indexRoot *build_VGram_index.IndexTreeNode, qmin int, qmax int) []build_VGram_index.SeriesId {
+func MatchSearch(searchStr string, root *dictionary.TrieTreeNode, indexRoot *index07.IndexTreeNode, qmin int, qmax int) []index07.SeriesId {
 	var vgMap map[int]string
 	vgMap = make(map[int]string)
-	build_VGram_index.VGCons(root, qmin, qmax, searchStr, vgMap)
-	fmt.Println(vgMap)
+	start1 := time.Now().UnixMicro()
+	index07.VGCons(root, qmin, qmax, searchStr, vgMap)
+	//fmt.Println(vgMap)
 	var keys = []int{}
 	for key := range vgMap {
 		keys = append(keys, key)
 	}
 	sort.Sort(sort.IntSlice(keys)) //对map中的key进行排序（map遍历是无序的）
-	var resArr []build_VGram_index.SeriesId
+	elapsed1 := time.Now().UnixMicro()
+	var resArr []index07.SeriesId
 	preSeaPosition := 0
 	var preInverPositionDis []PosList
 	var nowInverPositionDis []PosList
-	start2 := time.Now()
+	var sum2 int64
+	sum2 = 0
+	var sum3 int64
+	sum3 = 0
 	for m := 0; m < len(keys); m++ {
 		i := keys[m]
 		gramArr := vgMap[i]
@@ -32,19 +37,14 @@ func MatchSearch(searchStr string, root *build_dictionary.TrieTreeNode, indexRoo
 			nowSeaPosition := i
 			invertIndex = nil
 			invertIndex2 = nil
+			start2 := time.Now().UnixMicro()
 			searchIndexTreeFromLeaves(gramArr, indexRoot, 0)
 			searchListsTreeFromLeaves(indexNode)
-
 			//fmt.Println(invertIndex)
 			mergo.Merge(&invertIndex, invertIndex2)
-			fmt.Println(len(invertIndex))
-			//mergeMaps(invertIndex, invertIndex2)
-			/*sort.SliceStable(invertIndex, func(i, j int) bool { //排序
-				if invertIndex[i].Sid.Id < invertIndex[j].Sid.Id && invertIndex[i].Sid.Time < invertIndex[j].Sid.Time {
-					return true
-				}
-				return false
-			})*/
+			end2 := time.Now().UnixMicro()
+			sum2 += (end2 - start2)
+			start3 := time.Now().UnixMicro()
 			if invertIndex == nil {
 				return nil
 			}
@@ -60,10 +60,10 @@ func MatchSearch(searchStr string, root *build_dictionary.TrieTreeNode, indexRoo
 					sid := resArr[j]
 					if _, ok := invertIndex[sid]; ok {
 						nowInverPositionDis[j] = NewPosList(sid, invertIndex[sid])
-						for z1 := 0; z1 < len(preInverPositionDis[j].PosArray); z1++ {
-							z1Pos := preInverPositionDis[j].PosArray[z1]
-							for z2 := 0; z2 < len(nowInverPositionDis[j].PosArray); z2++ {
-								z2Pos := nowInverPositionDis[j].PosArray[z2]
+						for z1 := 0; z1 < len(preInverPositionDis[j].posArray); z1++ {
+							z1Pos := preInverPositionDis[j].posArray[z1]
+							for z2 := 0; z2 < len(nowInverPositionDis[j].posArray); z2++ {
+								z2Pos := nowInverPositionDis[j].posArray[z2]
 								if nowSeaPosition-preSeaPosition == z2Pos-z1Pos {
 									findFlag = true
 									break
@@ -84,50 +84,61 @@ func MatchSearch(searchStr string, root *build_dictionary.TrieTreeNode, indexRoo
 			}
 			preSeaPosition = nowSeaPosition
 			copy(preInverPositionDis, nowInverPositionDis)
+			end3 := time.Now().UnixMicro()
+			sum3 += (end3 - start3)
 		}
 	}
 
-	elapsed2 := time.Since(start2).Microseconds()
-	fmt.Println("精确查询花费时间（us）：", elapsed2)
+	elapsed2 := time.Now().UnixMicro()
+	fmt.Println("精确查询总花费时间（us）：", elapsed2-start1)
+	fmt.Println("精确查询划分查询串时间（us）：", elapsed1-start1)
+	fmt.Println("精确查询查询索引时间（us）：", sum2)
+	fmt.Println("精确查询合并倒排时间（us）：", sum3)
+	sort.SliceStable(resArr, func(i, j int) bool {
+		if resArr[i].Id() < resArr[j].Id() && resArr[i].Time() < resArr[j].Time() {
+			return true
+		}
+		return false
+	})
 	return resArr
 }
 
-var invertIndex build_VGram_index.Inverted_index
+var invertIndex index07.Inverted_index
 
-var indexNode *build_VGram_index.IndexTreeNode
+var indexNode *index07.IndexTreeNode
 
 //查询当前串对应的倒排表（叶子节点）
-func searchIndexTreeFromLeaves(gramArr string, indexRoot *build_VGram_index.IndexTreeNode, i int) {
+func searchIndexTreeFromLeaves(gramArr string, indexRoot *index07.IndexTreeNode, i int) {
 	if indexRoot == nil {
 		return
 	}
-	for j := 0; j < len(indexRoot.Children); j++ {
-		if i < len(gramArr)-1 && string(gramArr[i]) == indexRoot.Children[j].Data {
-			searchIndexTreeFromLeaves(gramArr, indexRoot.Children[j], i+1)
+	for j := 0; j < len(indexRoot.Children()); j++ {
+		if i < len(gramArr)-1 && string(gramArr[i]) == indexRoot.Children()[j].Data() {
+			searchIndexTreeFromLeaves(gramArr, indexRoot.Children()[j], i+1)
 		}
-		if i == len(gramArr)-1 && string(gramArr[i]) == indexRoot.Children[j].Data { //找到那一层的倒排表
-			invertIndex = indexRoot.Children[j].InvertedIndex
-			indexNode = indexRoot.Children[j]
+		if i == len(gramArr)-1 && string(gramArr[i]) == indexRoot.Children()[j].Data() { //找到那一层的倒排表
+			invertIndex = indexRoot.Children()[j].InvertedIndex()
+			indexNode = indexRoot.Children()[j]
 		}
 	}
 }
 
-var invertIndex2 build_VGram_index.Inverted_index
+var invertIndex2 index07.Inverted_index
 
-func searchListsTreeFromLeaves(indexNode *build_VGram_index.IndexTreeNode) {
+func searchListsTreeFromLeaves(indexNode *index07.IndexTreeNode) {
 	if indexNode != nil {
-		for l := 0; l < len(indexNode.Children); l++ {
-			if len(indexNode.Children[l].InvertedIndex) > 0 {
-				mergo.Merge(&invertIndex2, indexNode.Children[l].InvertedIndex)
+		for l := 0; l < len(indexNode.Children()); l++ {
+			if len(indexNode.Children()[l].InvertedIndex()) > 0 {
+				mergo.Merge(&invertIndex2, indexNode.Children()[l].InvertedIndex())
 				//invertIndex2 = append(invertIndex2,indexNode.Children[l].InvertedIndex)
 				//mergeMaps(invertIndex2, indexNode.Children[l].InvertedIndex)
 			}
-			searchListsTreeFromLeaves(indexNode.Children[l])
+			searchListsTreeFromLeaves(indexNode.Children()[l])
 		}
 	}
 }
 
-func mergeMaps(map1 map[build_VGram_index.SeriesId][]int, map2 map[build_VGram_index.SeriesId][]int) {
+func mergeMaps(map1 map[index07.SeriesId][]int, map2 map[index07.SeriesId][]int) {
 	for sid2, value := range map2 {
 		if _, ok := map1[sid2]; !ok {
 			map1[sid2] = value

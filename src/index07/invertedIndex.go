@@ -1,3 +1,3 @@
-package build_VGram_index
+package index07
 
 type Inverted_index map[SeriesId][]int
